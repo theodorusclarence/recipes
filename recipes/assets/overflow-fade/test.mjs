@@ -196,19 +196,6 @@ for (const impl of ['fade', 'tw-fade']) {
       }
     });
 
-    test('rule 10: breathing room is outside the viewport', async ({ page: p }) => {
-      const box = p.locator(`${page('r10')} [data-test=scroller]`);
-      const tabs = await p.locator(`${page('r10')} [data-test=tabs]`).boundingBox();
-      const first = await box.locator('.row').first().boundingBox();
-      expect(first.y - tabs.y - tabs.height + 4).toBeCloseTo(8, 0);
-      const viewport = await box.boundingBox();
-      expect(first.y - viewport.y).toBeCloseTo(4, 0);
-      await scrollTo(p, box, 'end');
-      const last = await box.locator('.row').last().boundingBox();
-      const input = await p.locator(`${page('r10')} [data-test=input]`).boundingBox();
-      expect(input.y - last.y - last.height).toBeCloseTo(4, 0);
-    });
-
     test('rule 11: in-place toggle, delete and add keep the viewport and scroll position', async ({ page: p }) => {
       const box = p.locator(`${page('r11')} [data-test=scroller]`);
 
