@@ -1,0 +1,13 @@
+{
+  "name": "ui-recipes",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "pngjs": "7.0.0",
+    "tw-fade": "0.10.0"
+  }
+}

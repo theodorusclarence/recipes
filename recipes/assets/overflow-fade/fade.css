@@ -1,0 +1,116 @@
+/*
+ * fade.css: scroll-edge fade for projects without Tailwind.
+ * A small rewrite of tw-fade's mask technique (https://github.com/petekp/tw-fade,
+ * MIT, Pete Petrash). Same class names, so recipe code works with either.
+ *
+ *   .fade-y      top and bottom      .fade-x     start and end
+ *   .fade-top    .fade-bottom        .fade-start .fade-end
+ *
+ * Each edge fades only while there is more to scroll that way, with no
+ * JavaScript. Where scroll-driven animations are not supported, nothing
+ * fades and nothing is hidden. The x axis is left-to-right only; use
+ * tw-fade if the page can be right-to-left.
+ *
+ * Each faded edge also gets scroll padding the size of the fade, so an item
+ * reached with Tab scrolls clear of the band instead of stopping inside it.
+ *
+ * Tune per element: --fade-size (band height), --fade-travel (scroll
+ * distance over which an edge fades in).
+ */
+
+@property --fade-t { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --fade-b { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --fade-s { syntax: '<number>'; inherits: false; initial-value: 0; }
+@property --fade-e { syntax: '<number>'; inherits: false; initial-value: 0; }
+
+@keyframes fade-in-t { from { --fade-t: 0; } to { --fade-t: 1; } }
+@keyframes fade-out-b { from { --fade-b: 1; } to { --fade-b: 0; } }
+@keyframes fade-in-s { from { --fade-s: 0; } to { --fade-s: 1; } }
+@keyframes fade-out-e { from { --fade-e: 1; } to { --fade-e: 0; } }
+
+:is(.fade-y, .fade-top, .fade-bottom, .fade-x, .fade-start, .fade-end) {
+  --fade-size: min(12%, 3rem);
+  --fade-travel: 2rem;
+  --fade-start: calc(100% - var(--fade-travel));
+
+  /* An eased ramp: alpha at 0, 25, 50, 75 and 100% of the band. */
+  --fade-mask-t: linear-gradient(to bottom,
+    rgb(0 0 0 / calc(1 - var(--fade-t))) 0,
+    rgb(0 0 0 / calc(1 - var(--fade-t) * 0.854)) calc(var(--fade-size) * 0.25),
+    rgb(0 0 0 / calc(1 - var(--fade-t) * 0.5)) calc(var(--fade-size) * 0.5),
+    rgb(0 0 0 / calc(1 - var(--fade-t) * 0.146)) calc(var(--fade-size) * 0.75),
+    #000 var(--fade-size));
+  --fade-mask-b: linear-gradient(to top,
+    rgb(0 0 0 / calc(1 - var(--fade-b))) 0,
+    rgb(0 0 0 / calc(1 - var(--fade-b) * 0.854)) calc(var(--fade-size) * 0.25),
+    rgb(0 0 0 / calc(1 - var(--fade-b) * 0.5)) calc(var(--fade-size) * 0.5),
+    rgb(0 0 0 / calc(1 - var(--fade-b) * 0.146)) calc(var(--fade-size) * 0.75),
+    #000 var(--fade-size));
+  --fade-mask-s: linear-gradient(to right,
+    rgb(0 0 0 / calc(1 - var(--fade-s))) 0,
+    rgb(0 0 0 / calc(1 - var(--fade-s) * 0.854)) calc(var(--fade-size) * 0.25),
+    rgb(0 0 0 / calc(1 - var(--fade-s) * 0.5)) calc(var(--fade-size) * 0.5),
+    rgb(0 0 0 / calc(1 - var(--fade-s) * 0.146)) calc(var(--fade-size) * 0.75),
+    #000 var(--fade-size));
+  --fade-mask-e: linear-gradient(to left,
+    rgb(0 0 0 / calc(1 - var(--fade-e))) 0,
+    rgb(0 0 0 / calc(1 - var(--fade-e) * 0.854)) calc(var(--fade-size) * 0.25),
+    rgb(0 0 0 / calc(1 - var(--fade-e) * 0.5)) calc(var(--fade-size) * 0.5),
+    rgb(0 0 0 / calc(1 - var(--fade-e) * 0.146)) calc(var(--fade-size) * 0.75),
+    #000 var(--fade-size));
+
+  /* Layers are combined with intersect. Never exclude: where two opaque
+     layers overlap, XOR makes the middle of the box disappear. */
+  mask-repeat: no-repeat;
+  mask-composite: intersect;
+}
+
+.fade-y {
+  scroll-padding-block: var(--fade-size);
+  mask-image: var(--fade-mask-t), var(--fade-mask-b);
+  animation: fade-in-t linear both, fade-out-b linear both;
+  animation-timeline: scroll(self y), scroll(self y);
+  animation-range: 0 var(--fade-travel), var(--fade-start) 100%;
+}
+.fade-top {
+  scroll-padding-top: var(--fade-size);
+  mask-image: var(--fade-mask-t);
+  animation: fade-in-t linear both;
+  animation-timeline: scroll(self y);
+  animation-range: 0 var(--fade-travel);
+}
+.fade-bottom {
+  scroll-padding-bottom: var(--fade-size);
+  mask-image: var(--fade-mask-b);
+  animation: fade-out-b linear both;
+  animation-timeline: scroll(self y);
+  animation-range: var(--fade-start) 100%;
+}
+.fade-x {
+  scroll-padding-inline: var(--fade-size);
+  mask-image: var(--fade-mask-s), var(--fade-mask-e);
+  animation: fade-in-s linear both, fade-out-e linear both;
+  animation-timeline: scroll(self x), scroll(self x);
+  animation-range: 0 var(--fade-travel), var(--fade-start) 100%;
+}
+.fade-start {
+  scroll-padding-inline-start: var(--fade-size);
+  mask-image: var(--fade-mask-s);
+  animation: fade-in-s linear both;
+  animation-timeline: scroll(self x);
+  animation-range: 0 var(--fade-travel);
+}
+.fade-end {
+  scroll-padding-inline-end: var(--fade-size);
+  mask-image: var(--fade-mask-e);
+  animation: fade-out-e linear both;
+  animation-timeline: scroll(self x);
+  animation-range: var(--fade-start) 100%;
+}
+
+/* A box with nothing to scroll has no scroll timeline: keep it unfaded. */
+@supports not (animation-timeline: scroll()) {
+  :is(.fade-y, .fade-top, .fade-bottom, .fade-x, .fade-start, .fade-end) {
+    mask-image: none;
+  }
+}
