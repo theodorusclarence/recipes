@@ -1,4 +1,4 @@
-# ui-recipes
+# recipes
 
 My UI/UX recipes: how a piece of interface should look, move and behave, written as rules an agent
 can follow and I can check. Agents read them through the `recipes` skill (`/recipes`) in
