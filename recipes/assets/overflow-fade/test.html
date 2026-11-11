@@ -157,8 +157,8 @@
   </div>
 </section>
 
-<section data-case="r11">
-  <h2>11. preserve position on edits</h2>
+<section data-case="r10">
+  <h2>10. preserve position on edits</h2>
   <div class="surface">
     <div class="box fade-y rows" tabindex="0" style="padding: 4px; scroll-padding-block: calc(min(12%, 3rem) + 4px)" data-test="scroller" data-items="rows"></div>
     <button data-test="add">Add row</button>
@@ -188,7 +188,7 @@
     if (below > 0) viewport.scrollTop += below;
   }
 
-  const editable = document.querySelector('[data-case=r11] [data-test=scroller]');
+  const editable = document.querySelector('[data-case=r10] [data-test=scroller]');
   editable.addEventListener('click', (event) => {
     if (!event.target.matches('.row')) return;
     event.target.dataset.done = String(event.target.dataset.done !== 'true');
@@ -215,7 +215,7 @@
     }
     focusNearest(editable, next);
   });
-  document.querySelector('[data-case=r11] [data-test=add]').addEventListener('click', () => {
+  document.querySelector('[data-case=r10] [data-test=add]').addEventListener('click', () => {
     const row = document.createElement('button');
     row.className = 'row ring';
     row.textContent = 'New row';

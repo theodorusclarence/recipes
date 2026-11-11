@@ -196,8 +196,8 @@ for (const impl of ['fade', 'tw-fade']) {
       }
     });
 
-    test('rule 11: in-place toggle, delete and add keep the viewport and scroll position', async ({ page: p }) => {
-      const box = p.locator(`${page('r11')} [data-test=scroller]`);
+    test('rule 10: in-place toggle, delete and add keep the viewport and scroll position', async ({ page: p }) => {
+      const box = p.locator(`${page('r10')} [data-test=scroller]`);
 
       await box.evaluate((el) => {
         el.scrollTop = 200;
@@ -211,28 +211,28 @@ for (const impl of ['fade', 'tw-fade']) {
       await p.keyboard.press('Delete');
       expect(await box.locator('.row').count()).toBe(14);
       expect(await box.evaluate((el) => el.scrollTop)).toBe(200);
-      await p.locator(`${page('r11')} [data-test=add]`).click();
+      await p.locator(`${page('r10')} [data-test=add]`).click();
       expect(await box.locator('.row').count()).toBe(15);
       expect(await box.evaluate((el) => el.scrollTop)).toBe(200);
       expect(await box.evaluate((el) => el === window.editViewport)).toBe(true);
     });
 
-    test('rule 11: Tab moves only far enough to clear the fade, not to the centre', async ({ page: p, browserName }) => {
+    test('rule 10: Tab moves only far enough to clear the fade, not to the centre', async ({ page: p, browserName }) => {
       for (const direction of ['down', 'up']) {
         const edge = direction === 'down' ? 'bottom' : 'top';
-        const got = await tabInto(p, p.locator(`${page('r11')} [data-test=scroller]`), direction, browserName);
+        const got = await tabInto(p, p.locator(`${page('r10')} [data-test=scroller]`), direction, browserName);
         expect(got.focused).toBe(true);
         expect(got.gap[edge]).toBeGreaterThanOrEqual(got.band + 4 - 1);
         expect(got.gap[edge]).toBeLessThanOrEqual(got.band + 4 + 1);
       }
     });
 
-    test('rule 11: Tab leaves the list and removing the only row keeps useful focus', async ({ page: p, browserName }) => {
-      const box = p.locator(`${page('r11')} [data-test=scroller]`);
+    test('rule 10: Tab leaves the list and removing the only row keeps useful focus', async ({ page: p, browserName }) => {
+      const box = p.locator(`${page('r10')} [data-test=scroller]`);
       await box.locator('.row').last().focus();
       const tab = browserName === 'webkit' ? 'Alt+Tab' : 'Tab';
       await p.keyboard.press(tab);
-      await expect(p.locator(`${page('r11')} [data-test=add]`)).toBeFocused();
+      await expect(p.locator(`${page('r10')} [data-test=add]`)).toBeFocused();
 
       await box.evaluate((el) => {
         [...el.children].slice(1).forEach((row) => row.remove());

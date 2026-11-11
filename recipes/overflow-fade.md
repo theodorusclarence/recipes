@@ -238,7 +238,7 @@ from the test engines.
 shows.
 
 **Note (to try):** Remount on a content swap, never on in-place edits: toggle/delete/add keep
-the viewport and scroll position. See rule 11 for focus.
+the viewport and scroll position. See rule 10 for focus.
 
 ## 7. Focus rings are never clipped
 
@@ -348,7 +348,7 @@ In Tailwind: `grid-cols-[minmax(0,1fr)]` on the grid, or `min-w-0` on the item.
 **Check:** At 320px wide, the page does not scroll sideways, and the strip scrolls and fades
 inside its card.
 
-## 11. Move focus only as far as needed
+## 10. Move focus only as far as needed
 
 `status: to try`
 
@@ -396,7 +396,7 @@ Run these in the project, on the real screen. Each line names the rule it proves
 
 - [ ] The first item, the last item and a focusable scroller each show their whole ring (rule 7).
 - [ ] Tabbing until the box scrolls, down and then up, every item stops clear of the fade (rule 8).
-- [ ] Edits preserve the viewport; Tab moves minimally, clears the whole ring and can leave (rules 8, 11, to try).
+- [ ] Edits preserve the viewport; Tab moves minimally, clears the whole ring and can leave (rules 8, 10, to try).
 
 **iPhone, Safari**
 
@@ -409,7 +409,7 @@ on [`test.html`](assets/overflow-fade/test.html), with both implementations, in 
 and Firefox. Run `npm test` from the repo root. Rules 4 and 5 need a scroll-area component and an
 iPhone, so they are checked by hand.
 
-The suite also checks ring allowance (rule 8), in-place edits and minimum focus movement (rule 11).
+The suite also checks ring allowance (rule 8), in-place edits and minimum focus movement (rule 10).
 
 ## Sources
 
