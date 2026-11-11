@@ -150,10 +150,85 @@
   <div class="surface"><div class="box fade-y rows" data-test="scroller" data-items="rows"></div></div>
 </section>
 
+<section data-case="r8-ring">
+  <h2>8. try: allow for the ring</h2>
+  <div class="surface">
+    <div class="box fade-y rows" style="scroll-padding-block: calc(min(12%, 3rem) + 4px)" data-test="scroller" data-items="rows"></div>
+  </div>
+</section>
+
+<section data-case="r10">
+  <h2>10. space outside the viewport</h2>
+  <div class="surface">
+    <nav data-test="tabs" style="padding-bottom: 4px"><span data-test="tab">All / Active / Done</span></nav>
+    <div class="box fade-y rows" style="padding: 4px" data-test="scroller" data-items="rows"></div>
+    <input data-test="input" aria-label="New task" style="display: block; box-sizing: border-box; width: 100%">
+  </div>
+</section>
+
+<section data-case="r11">
+  <h2>11. preserve position on edits</h2>
+  <div class="surface">
+    <div class="box fade-y rows" tabindex="0" style="padding: 4px; scroll-padding-block: calc(min(12%, 3rem) + 4px)" data-test="scroller" data-items="rows"></div>
+    <button data-test="add">Add row</button>
+  </div>
+</section>
+
 <script>
   for (const el of document.querySelectorAll('[data-items=chips]'))
     for (let i = 1; i <= 10; i++) el.insertAdjacentHTML('beforeend', `<button class="chip ring">Chip ${i}</button>`);
   for (const el of document.querySelectorAll('[data-items=rows]'))
     for (let i = 1; i <= 15; i++) el.insertAdjacentHTML('beforeend', `<button class="row ring">Row ${i}</button>`);
+
+  function focusNearest(viewport, item) {
+    item.focus({ preventScroll: true });
+    const box = viewport.getBoundingClientRect();
+    const target = item.getBoundingClientRect();
+    const band = Math.min(viewport.clientHeight * 0.12, 48) + 4;
+    const topGap = viewport.scrollTop > 0 ? band : 4;
+    const moreBelow = viewport.scrollTop < viewport.scrollHeight - viewport.clientHeight;
+    const bottomGap = moreBelow ? band : 4;
+    const above = target.top - box.top - topGap;
+    const below = target.bottom - box.bottom + bottomGap;
+    if (above < 0) {
+      viewport.scrollTop += above;
+      return;
+    }
+    if (below > 0) viewport.scrollTop += below;
+  }
+
+  const editable = document.querySelector('[data-case=r11] [data-test=scroller]');
+  editable.addEventListener('click', (event) => {
+    if (!event.target.matches('.row')) return;
+    event.target.dataset.done = String(event.target.dataset.done !== 'true');
+  });
+  editable.addEventListener('keydown', (event) => {
+    const rows = [...editable.children];
+    const index = rows.indexOf(document.activeElement);
+    if (event.key === 'Tab') {
+      const next = rows[index + (event.shiftKey ? -1 : 1)];
+      if (!next) return;
+      event.preventDefault();
+      focusNearest(editable, next);
+      return;
+    }
+    if (event.key !== 'Delete' || index < 0) return;
+    event.preventDefault();
+    const next = rows[index + 1] || rows[index - 1];
+    const scroll = editable.scrollTop;
+    rows[index].remove();
+    editable.scrollTop = scroll;
+    if (!next) {
+      editable.focus({ preventScroll: true });
+      return;
+    }
+    focusNearest(editable, next);
+  });
+  document.querySelector('[data-case=r11] [data-test=add]').addEventListener('click', () => {
+    const row = document.createElement('button');
+    row.className = 'row ring';
+    row.textContent = 'New row';
+    editable.append(row);
+  });
 </script>
 </html>

@@ -186,5 +186,75 @@ for (const impl of ['fade', 'tw-fade']) {
         expect(yes.gap[edge], `Tab ${direction}: gap to the ${edge} edge`).toBeGreaterThanOrEqual(yes.band - 1);
       }
     });
+
+    test('rule 8 addition: scroll padding clears the ring as well as the item', async ({ page: p, browserName }) => {
+      for (const direction of ['down', 'up']) {
+        const edge = direction === 'down' ? 'bottom' : 'top';
+        const got = await tabInto(p, p.locator(`${page('r8-ring')} [data-test=scroller]`), direction, browserName);
+        expect(got.focused).toBe(true);
+        expect(got.gap[edge]).toBeGreaterThanOrEqual(got.band + 4 - 1);
+      }
+    });
+
+    test('rule 10: breathing room is outside the viewport', async ({ page: p }) => {
+      const box = p.locator(`${page('r10')} [data-test=scroller]`);
+      const tabs = await p.locator(`${page('r10')} [data-test=tabs]`).boundingBox();
+      const first = await box.locator('.row').first().boundingBox();
+      expect(first.y - tabs.y - tabs.height + 4).toBeCloseTo(8, 0);
+      const viewport = await box.boundingBox();
+      expect(first.y - viewport.y).toBeCloseTo(4, 0);
+      await scrollTo(p, box, 'end');
+      const last = await box.locator('.row').last().boundingBox();
+      const input = await p.locator(`${page('r10')} [data-test=input]`).boundingBox();
+      expect(input.y - last.y - last.height).toBeCloseTo(4, 0);
+    });
+
+    test('rule 11: in-place toggle, delete and add keep the viewport and scroll position', async ({ page: p }) => {
+      const box = p.locator(`${page('r11')} [data-test=scroller]`);
+
+      await box.evaluate((el) => {
+        el.scrollTop = 200;
+        window.editViewport = el;
+        el.children[8].focus({ preventScroll: true });
+      });
+
+      await p.keyboard.press('Enter');
+      expect(await box.locator('.row').nth(8).getAttribute('data-done')).toBe('true');
+      expect(await box.evaluate((el) => el.scrollTop)).toBe(200);
+      await p.keyboard.press('Delete');
+      expect(await box.locator('.row').count()).toBe(14);
+      expect(await box.evaluate((el) => el.scrollTop)).toBe(200);
+      await p.locator(`${page('r11')} [data-test=add]`).click();
+      expect(await box.locator('.row').count()).toBe(15);
+      expect(await box.evaluate((el) => el.scrollTop)).toBe(200);
+      expect(await box.evaluate((el) => el === window.editViewport)).toBe(true);
+    });
+
+    test('rule 11: Tab moves only far enough to clear the fade, not to the centre', async ({ page: p, browserName }) => {
+      for (const direction of ['down', 'up']) {
+        const edge = direction === 'down' ? 'bottom' : 'top';
+        const got = await tabInto(p, p.locator(`${page('r11')} [data-test=scroller]`), direction, browserName);
+        expect(got.focused).toBe(true);
+        expect(got.gap[edge]).toBeGreaterThanOrEqual(got.band + 4 - 1);
+        expect(got.gap[edge]).toBeLessThanOrEqual(got.band + 4 + 1);
+      }
+    });
+
+    test('rule 11: Tab leaves the list and removing the only row keeps useful focus', async ({ page: p, browserName }) => {
+      const box = p.locator(`${page('r11')} [data-test=scroller]`);
+      await box.locator('.row').last().focus();
+      const tab = browserName === 'webkit' ? 'Alt+Tab' : 'Tab';
+      await p.keyboard.press(tab);
+      await expect(p.locator(`${page('r11')} [data-test=add]`)).toBeFocused();
+
+      await box.evaluate((el) => {
+        [...el.children].slice(1).forEach((row) => row.remove());
+        el.firstElementChild.focus({ preventScroll: true });
+      });
+
+      await p.keyboard.press('Delete');
+      await expect(box).toBeEmpty();
+      await expect(box).toBeFocused();
+    });
   });
 }
