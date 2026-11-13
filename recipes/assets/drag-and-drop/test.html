@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>drag-and-drop test</title>
+<!--
+  Test page for recipes/drag-and-drop.md, driven by test.mjs. The cases live in fixture.jsx.
+  Pure colours so the test can read pixels: list surface red, rows and the lifted copy blue.
+-->
+<style>
+  body { margin: 0; padding: 16px; font: 13px/1.3 system-ui, sans-serif; background: #fff; }
+  #root { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+  section { display: grid; gap: 6px; width: 210px; }
+  h2 { margin: 0; font-size: 11px; font-weight: 600; }
+  .list { display: flex; flex-direction: column; padding: 8px; background: rgb(255 0 0); }
+  .list.gap { gap: 8px; }
+  .list.margins > * + * { margin-top: 8px; }
+  .list.uneven { gap: 8px; }
+  .list.uneven > :nth-child(4) { margin-top: 16px; }
+  .row {
+    position: relative; box-sizing: border-box; display: flex; align-items: center;
+    justify-content: space-between; padding-left: 12px; border-radius: 8px;
+    color: #fff; background: rgb(0 0 255);
+  }
+  .handle {
+    width: 32px; height: 32px; border: 0; padding: 0; font: inherit; color: inherit;
+    background: none; cursor: grab; touch-action: none;
+  }
+  /* The lifted row's place: a dashed box at the row's own height. */
+  .is-slot { background: transparent; }
+  .is-slot > :not(.slot) { visibility: hidden; }
+  .slot { position: absolute; inset: 0; border: 2px dashed rgb(255 255 255 / 0.7); border-radius: 8px; }
+  /* The lifted copy: opaque, tilted and raised, eased in on mount. */
+  @keyframes lift { from { transform: none; box-shadow: none; } }
+  .lifted {
+    height: 100%; cursor: grabbing;
+    transform: rotate(-1.6deg) scale(1.025);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 6px 12px -2px rgb(0 0 0 / 0.1), 0 18px 38px -6px rgb(0 0 0 / 0.18);
+    animation: lift 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: transform 220ms cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 220ms cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+  /* Landing: the copy turns back into the row it becomes. */
+  .settling .lifted { transform: none; box-shadow: none; }
+</style>
+<div id="root"></div>
+<script src="fixture.build.js"></script>
+</html>

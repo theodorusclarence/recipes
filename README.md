@@ -12,11 +12,17 @@ add or change a recipe, follow the rules below.
 ```
 recipes/
   overflow-fade.md          one recipe, one file
+  drag-and-drop.md
   assets/overflow-fade/
     fade.css                vendored code a project copies in (when the recipe needs it)
     test.html               one example per rule, for the tests
     test.mjs                the tests (Playwright)
+  assets/drag-and-drop/
+    fixture.jsx             the examples, when they need a framework (React)
+    test.html               loads fixture.build.js, which the test run bundles from fixture.jsx
+    test.mjs
 scripts/test-helpers.mjs    shared test helpers (read pixels, find a focus ring)
+scripts/build-fixtures.mjs  bundles every fixture.jsx with esbuild before the tests run
 playwright.config.mjs       runs every recipe's tests in Chromium, WebKit and Firefox
 ```
 
@@ -178,8 +184,11 @@ A recipe is tested three ways, because each catches something the others miss.
    `test.mjs` measures it with Playwright in Chromium, WebKit and Firefox, against every
    implementation in the Setup table. Where a "no" example proves the rule's Why (a border that
    fades, a ring that is cut off), test that too. Use plain colours so a test can read pixels, and
-   the helpers in `scripts/test-helpers.mjs`. A finding the tests turn up goes into the rule's Why,
-   with the date and the engines. Run `npm test`; the `Test recipes` check runs it on every PR.
+   the helpers in `scripts/test-helpers.mjs`. When the examples need a framework (a React
+   library), write them in `fixture.jsx` next to `test.html`: the test run bundles it into
+   `fixture.build.js` (not committed), and `test.html` loads that. Pin the library's exact
+   version in `package.json`. A finding the tests turn up goes into the rule's Why, with the date
+   and the engines. Run `npm test`; the `Test recipes` check runs it on every PR.
 2. **Checks by hand cover what a test cannot.** Feel on a phone, an iPhone bounce, a judgement of
    taste. These stay in Done when, and the recipe's Tests section names them.
 3. **A fresh agent proves the recipe is clear.** After a new recipe or a large change, give an agent
